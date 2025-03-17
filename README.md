@@ -1,4 +1,4 @@
-# Examboard Backend
+# Examboard backend
 
 This is the backend of the examboard application.
 
@@ -25,7 +25,7 @@ cd examboard-node-backend
 npm install
 ```
 
-## 4. Run
+### 4. Run
 
 ```
 npm run dev
