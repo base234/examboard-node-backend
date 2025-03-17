@@ -39,7 +39,7 @@ docker compose up -d --build
 
 ### 2. Run the image
 ```
-docker run -p 3333:3333 -d examboard-backend
+docker compose up -d
 ```
 
 The project running link or PORT: [http://localhost:3000](http://localhost:3333)
