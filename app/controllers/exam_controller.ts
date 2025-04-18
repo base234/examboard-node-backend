@@ -8,11 +8,15 @@ import QuestionPaper from '#models/question_paper';
 
 export default class ExamController {
   async index({ response }: HttpContext) {
-    const exams = await Exam.query().orderBy('created_at', 'asc').exec();
+    const exams = await Exam.query()
+      .preload('batches')
+      .preload('question_papers')
+      .orderBy('created_at', 'asc')
+      .exec();
 
     return response.status(200).send({
       status: 'success',
-      message: 'Schools fetched successfully',
+      message: 'Exams fetched successfully',
       data: await ExamTransformer.collection(exams)
     });
   }

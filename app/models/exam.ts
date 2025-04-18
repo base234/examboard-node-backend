@@ -19,6 +19,9 @@ export default class Exam extends BaseModel {
   declare teacher: BelongsTo<typeof Teacher>
 
   @column()
+  declare serial_no: string
+
+  @column()
   declare name: string
 
   @column()
