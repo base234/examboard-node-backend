@@ -1,7 +1,7 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 // import app from '@adonisjs/core/services/app'
 
-export default class IndexSeeder extends BaseSeeder {
+export default class Index extends BaseSeeder {
   private async seed(Seeder: { default: typeof BaseSeeder }) {
     /**
      * Do not run when not in a environment specified in Seeder
@@ -19,7 +19,12 @@ export default class IndexSeeder extends BaseSeeder {
   }
 
   async run() {
-    await this.seed(await import('#database/seeders/type_of_question_seeder'))
-    await this.seed(await import('#database/seeders/type_of_school_seeder'))
+    // await this.seed(await import('#database/seeders/type_of_question_seeder'))
+    // await this.seed(await import('#database/seeders/subject_categories_seeder'))
+    // await this.seed(await import('#database/seeders/subjects_seeder'))
+    // await this.seed(await import('#database/seeders/school_type_seeder'))
+    // await this.seed(await import('#database/seeders/school_level_seeder'))
+    // await this.seed(await import('#database/seeders/school_classes_seeder'))
+    await this.seed(await import('#database/seeders/type_of_assessment_seeder'))
   }
 }

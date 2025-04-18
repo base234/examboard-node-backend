@@ -1,7 +1,10 @@
 import Batch from '#models/batch';
 import BatchStudent from '#models/batch_student';
+import SchoolClass from '#models/school_class';
+import SchoolLevel from '#models/school_level';
+import SchoolType from '#models/school_type';
 import Student from '#models/student';
-import TypeOfSchool from '#models/type_of_school';
+import Subject from '#models/subject';
 import BatchTransformer from '#transformers/BatchTransformer';
 import type { HttpContext } from '@adonisjs/core/http'
 
@@ -35,7 +38,6 @@ export default class BatchController {
     let { data } = request.all();
 
     const roleInstance: any = await auth.user!.getRoleInstance();
-    data.teacher_id = roleInstance.id;
 
     const batch_data = await Batch.query().where({
       teacher_id: roleInstance.id,
@@ -45,15 +47,23 @@ export default class BatchController {
     if (batch_data) {
       return response.status(401).send({
         status: 'error',
-        message: 'Batch name already exists!',
+        message: 'Batch with same name already exists!',
       });
     }
 
-    const typeOfSchool = await TypeOfSchool.query().where('uuid', data.type_of_school_id).first();
+    const schoolType = await SchoolType.query().where('uuid', data.school_type_id).firstOrFail();
+    const schoolLevel = await SchoolLevel.query().where('uuid', data.school_level_id).firstOrFail();
+    const schoolClass = await SchoolClass.query().where('uuid', data.school_class_id).firstOrFail();
+    const subject = await Subject.query().where('uuid', data.subject_id).firstOrFail();
 
     const payload = {
-      ...data,
-      type_of_school_id: typeOfSchool?.id,
+      teacher_id: roleInstance.id,
+      school_type_id: schoolType.id,
+      school_level_id: schoolLevel.id,
+      school_class_id: schoolClass.id,
+      subject_id: subject.id,
+      name: data.name,
+      description: data.description,
     };
 
     await Batch.create(payload);
@@ -113,14 +123,14 @@ export default class BatchController {
     const batchId = params.id;
     const studentId = params.student_id;
 
-    const batch = await Batch.query().where('uuid', batchId).firstOrFail();
-
-    if (!batch) {
+    if (!batchId) {
       return response.status(401).send({
         status: 'error',
         message: 'Batch not found!',
       });
     }
+
+    const batch = await Batch.query().where('uuid', batchId).firstOrFail();
 
     const student = await Student.query().where('uuid', studentId).firstOrFail();
 
@@ -162,28 +172,44 @@ export default class BatchController {
       });
     }
 
-    const batchData = await Batch.query().where('uuid', batchId).firstOrFail();
+    const batch = await Batch.query().where('uuid', batchId).firstOrFail();
 
-    if (batchData) {
+    if (!batch) {
       return response.status(401).send({
         status: 'error',
         message: 'Batch not found!',
       });
     }
 
-    const batch = new Batch();
+    // const batch = new Batch();
 
-    if ('name' in data) {
-      batch.name = data.name;
+    if ('school_type_id' in data) {
+      const schoolType = await SchoolType.query().where('uuid', data.school_type_id).firstOrFail();
+      batch.school_type_id = schoolType.id;
     }
 
-    if('type_of_school_id' in data) {
-      batch.type_of_school_id = data.type_of_school_id;
+    if ('school_level_id' in data) {
+      const schoolLevel = await SchoolLevel.query().where('uuid', data.school_level_id).firstOrFail();
+      batch.school_level_id = schoolLevel.id;
     }
 
-    if ('description' in data) {
-      batch.description = data.description;
+    if ('school_class_id' in data) {
+      const schoolClass = await SchoolClass.query().where('uuid', data.school_class_id).firstOrFail();
+      batch.school_class_id = schoolClass.id;
     }
+
+    if ('subject_id' in data) {
+      const subject = await Subject.query().where('uuid', data.subject_id).firstOrFail();
+      batch.subject_id = subject.id;
+    }
+
+    // if ('name' in data) {
+    //   batch.name = data.name;
+    // }
+
+    // if ('description' in data) {
+    //   batch.description = data.description;
+    // }
 
     await batch.save();
 

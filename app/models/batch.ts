@@ -5,7 +5,10 @@ import crypto from 'crypto'
 
 import Teacher from '#models/teacher'
 import Student from '#models/student'
-import TypeOfSchool from '#models/type_of_school'
+import SchoolType from '#models/school_type'
+import SchoolLevel from '#models/school_level'
+import SchoolClass from '#models/school_class'
+import Subject from '#models/subject'
 
 export default class Batch extends BaseModel {
   @column({ isPrimary: true })
@@ -18,7 +21,16 @@ export default class Batch extends BaseModel {
   declare teacher_id: number
 
   @column()
-  declare type_of_school_id: number
+  declare school_type_id: number
+
+  @column()
+  declare school_level_id: number
+
+  @column()
+  declare school_class_id: number
+
+  @column()
+  declare subject_id: number
 
   @column()
   declare name: string
@@ -37,11 +49,20 @@ export default class Batch extends BaseModel {
     batch.uuid = crypto.randomUUID()
   }
 
-  @belongsTo(() => Teacher)
+  @belongsTo(() => Teacher, { foreignKey: 'teacher_id' })
   declare teacher: BelongsTo<typeof Teacher>
 
-  @belongsTo(() => TypeOfSchool, { foreignKey: 'type_of_school_id' })
-  declare type_of_school: BelongsTo<typeof TypeOfSchool>
+  @belongsTo(() => SchoolType, { foreignKey: 'school_type_id' })
+  declare school_type: BelongsTo<typeof SchoolType>
+
+  @belongsTo(() => SchoolLevel, { foreignKey: 'school_level_id' })
+  declare school_level: BelongsTo<typeof SchoolLevel>
+
+  @belongsTo(() => SchoolClass, { foreignKey: 'school_class_id' })
+  declare school_class: BelongsTo<typeof SchoolClass>
+
+  @belongsTo(() => Subject, { foreignKey: 'subject_id' })
+  declare subject: BelongsTo<typeof Subject>
 
   @manyToMany(() => Student, {
     pivotTable: 'batch_students',

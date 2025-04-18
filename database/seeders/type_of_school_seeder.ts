@@ -1,5 +1,4 @@
-import { BaseSeeder } from '@adonisjs/lucid/seeders'
-import TypeOfQuestion from '#models/type_of_question';
+import { BaseSeeder } from '@adonisjs/lucid/seeders';
 import TypeOfSchool from '#models/type_of_school';
 
 export default class extends BaseSeeder {

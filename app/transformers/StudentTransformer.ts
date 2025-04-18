@@ -7,15 +7,14 @@ export default class StudentTransformer {
 
     return {
       id: student.uuid,
-      uuid: student.uuid,
       first_name: student.first_name,
       last_name: student.last_name,
       email: student.email,
       full_name: `${student.first_name ?? ''} ${student.last_name ?? ''}`.trim(),
-      batches: student.batches.map((batch: Batch) => ({
+      batches: student.batches.length > 0 ? student.batches.map((batch: Batch) => ({
         id: batch.uuid,
         name: batch.name,
-      })),
+      })) : null,
       created_at: student.createdAt,
       updated_at: student.updatedAt,
     }

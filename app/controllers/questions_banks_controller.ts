@@ -7,13 +7,15 @@ export default class QuestionsBanksController {
   /**
    * Display a list of resource
    */
-  async index({ auth, response }: HttpContext) {
-    const questions = await QuestionsBank.query().where('teacher_id', auth.user!.id).orderBy('created_at', 'asc').exec();
+  async index({ auth, request, response }: HttpContext) {
+    const { excludeQuestionPaper } = request.qs();
+
+    const questions = await QuestionsBank.query().where('teacher_id', auth.user!.id).preload('question_papers').orderBy('created_at', 'asc').exec();
 
     return response.status(200).send({
       status: 'success',
       message: 'Questions banks fetched successfully',
-      data: await QuestionsBankTransformer.collection(questions)
+      data: await QuestionsBankTransformer.collection(questions, excludeQuestionPaper)
     });
   }
 
@@ -45,8 +47,11 @@ export default class QuestionsBanksController {
       question: data.question,
       options: data.options,
       answer_options: [data.correct_answer],
+      answer_paragraph: data.answer_paragraph,
+      explanation: data.explanation,
       marks: 1,
       duration: 40,
+      note: data.note,
     };
 
     await QuestionsBank.create(payload);
@@ -60,7 +65,17 @@ export default class QuestionsBanksController {
   /**
    * Show individual record
    */
-  async show({ }: HttpContext) { }
+  async show({ params, response }: HttpContext) {
+    const { id } = params;
+
+    const questionBank = await QuestionsBank.query().where('uuid', id).firstOrFail();
+
+    return response.status(200).send({
+      status: 'success',
+      message: 'Questions bank fetched successfully',
+      data: await QuestionsBankTransformer.transform(questionBank)
+    });
+  }
 
   /**
    * Edit individual record
@@ -75,5 +90,16 @@ export default class QuestionsBanksController {
   /**
    * Delete record
    */
-  async destroy({ }: HttpContext) { }
+  async destroy({ params, response }: HttpContext) {
+    const { id } = params;
+
+    const questionBank = await QuestionsBank.query().where('uuid', id).firstOrFail();
+
+    await questionBank.delete();
+
+    return response.status(200).send({
+      status: 'success',
+      message: 'Questions bank deleted successfully',
+    });
+  }
 }

@@ -16,6 +16,15 @@ import { middleware } from './kernel.js'
 import TypeOfSchoolController from '#controllers/type_of_school_controller'
 import TypeOfQuestionController from '#controllers/type_of_question_controller'
 import QuestionsBanksController from '#controllers/questions_banks_controller'
+import SubjectCategoryController from '#controllers/subject_category_controller'
+import SubjectController from '#controllers/subject_controller'
+import SchoolTypeController from '#controllers/school_type_controller'
+import SchoolLevelController from '#controllers/school_level_controller'
+import SchoolClassController from '#controllers/school_class_controller'
+import TypeOfAssessmentController from '#controllers/type_of_assessment_controller'
+import QuestionPaperController from '#controllers/question_paper_controller'
+import ExamController from '#controllers/exam_controller'
+
 
 router.get('/', async () => {
   return {
@@ -43,7 +52,7 @@ router.group(() => {
   router.post('/batches', [BatchController, 'store'])
   router.post('/batches/:id/students/:student_id', [BatchController, 'storeStudent'])
   router.get('/batches/:id', [BatchController, 'show'])
-  router.put('/batches/:id', [BatchController, 'update'])
+  router.post('/batches/:id', [BatchController, 'update'])
   router.delete('/batches/:id', [BatchController, 'destroy'])
   router.delete('/batches/:id/students/:student_id', [BatchController, 'destroyStudent'])
 }).use(middleware.auth());
@@ -64,7 +73,56 @@ router.group(() => {
 router.group(() => {
   router.get('/questions-bank', [QuestionsBanksController, 'index'])
   router.post('/questions-bank', [QuestionsBanksController, 'store'])
+  router.get(`/questions-bank/:id`, [QuestionsBanksController, 'show'])
+  router.delete(`/questions-bank/:id`, [QuestionsBanksController, 'destroy']);
 }).use(middleware.auth());
+
+// Schools
+router.group(() => {
+  // Types
+  router.get('/schools', [SchoolTypeController, 'index'])
+  router.get('/schools/:uuid', [SchoolTypeController, 'show'])
+
+  // Levels
+  router.get('/schools/:uuid/levels', [SchoolLevelController, 'index'])
+  router.get('/schools/:uuid/levels/:level_id', [SchoolLevelController, 'show'])
+
+  // Classes
+  router.get('/schools/:uuid/levels/:level_id/classes', [SchoolClassController, 'index'])
+  router.get('/schools/:uuid/levels/:level_id/classes/:class-id', [SchoolClassController, 'show'])
+}).use(middleware.auth());
+
+// Subjects
+router.group(() => {
+  // Subject Categories
+  router.get('/subject-categories', [SubjectCategoryController, 'index'])
+  router.get('/subject-categories/:id', [SubjectCategoryController, 'show'])
+
+  // Subjects
+  router.get('/subjects', [SubjectController, 'index'])
+  router.get('/subjects/:id', [SubjectController, 'show'])
+}).use(middleware.auth());
+
+// Type of Assessments
+router.group(() => {
+  router.get('/type-of-assessments', [TypeOfAssessmentController, 'index'])
+  router.get('/type-of-assessments/:id', [TypeOfAssessmentController, 'show'])
+}).use(middleware.auth());
+
+// Exams
+router.group(() => {
+  router.get('/question-papers', [QuestionPaperController, 'index']);
+  router.post('/question-papers', [QuestionPaperController, 'store']);
+  router.get('/question-papers/:id', [QuestionPaperController, 'show']);
+  router.get('/question-papers/:id/questions/:question_id', [QuestionPaperController, 'storeQuestion'])
+  router.delete('/question-papers/:id/questions/:question_id', [QuestionPaperController, 'destroyQuestion'])
+}).use(middleware.auth());
+
+// Exams
+router.group(() => {
+  router.get('/exams', [ExamController, 'index']);
+  router.post('/exams', [ExamController, 'store']);
+});
 
 router.post('/api/upload-pdf', '#controllers/pdf_controller.upload')
 router.get('/api/stream-response/:requestId', '#controllers/pdf_controller.streamResponse')

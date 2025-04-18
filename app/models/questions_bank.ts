@@ -1,9 +1,11 @@
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, belongsTo, column } from '@adonisjs/lucid/orm'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
-import Teacher from './teacher.js'
-import TypeOfSchool from './type_of_school.js'
-import TypeOfQuestion from './type_of_question.js'
+import { BaseModel, beforeCreate, belongsTo, column, manyToMany } from '@adonisjs/lucid/orm'
+import type { BelongsTo, ManyToMany } from '@adonisjs/lucid/types/relations'
+
+import Teacher from '#models/teacher'
+import TypeOfSchool from '#models/type_of_school'
+import TypeOfQuestion from '#models/type_of_question'
+import QuestionPaper from '#models/question_paper'
 
 export default class QuestionsBank extends BaseModel {
   public static table = 'questions_bank';
@@ -75,10 +77,14 @@ export default class QuestionsBank extends BaseModel {
   @belongsTo(() => Teacher)
   declare teacher: BelongsTo<typeof Teacher>
 
-
   @belongsTo(() => TypeOfQuestion, { foreignKey: 'type_of_question_id' })
   declare type_of_question: BelongsTo<typeof TypeOfQuestion>
 
   @belongsTo(() => TypeOfSchool, { foreignKey: 'type_of_school_id' })
   declare type_of_school: BelongsTo<typeof TypeOfSchool>
+
+  @manyToMany(() => QuestionPaper, {
+    pivotTable: 'question_paper_questions',
+  })
+  declare question_papers: ManyToMany<typeof QuestionPaper>
 }
