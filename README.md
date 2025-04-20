@@ -4,8 +4,6 @@ This is the backend of the examboard application. It contains APIs for the front
 
 The frontend repo of the project: [http://github.com/base234/examboard-react-frontend](http://github.com/base234/examboard-react-frontend)
 
-AI repo of the project: [http://github.com/base234/examboard-fastapi-ai](http://github.com/base234/examboard-fastapi-ai)
-
 # Getting Started
 ## Requirements
 
