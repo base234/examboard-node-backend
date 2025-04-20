@@ -37,10 +37,10 @@ export default class Exam extends BaseModel {
   @column()
   declare duration: number
 
-  @column()
+  @column.dateTime()
   declare start_time: DateTime
 
-  @column()
+  @column.dateTime()
   declare end_time: DateTime
 
   @column.dateTime({ autoCreate: true })

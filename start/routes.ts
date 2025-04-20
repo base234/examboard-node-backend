@@ -24,11 +24,12 @@ import SchoolClassController from '#controllers/school_class_controller'
 import TypeOfAssessmentController from '#controllers/type_of_assessment_controller'
 import QuestionPaperController from '#controllers/question_paper_controller'
 import ExamController from '#controllers/exam_controller'
+import CandidateAuthController from '#controllers/candidate_auth_controller'
 
 
 router.get('/', async () => {
   return {
-    hello: 'world',
+    message: 'Welcome to Examboard API Infrastructure',
   }
 })
 
@@ -120,9 +121,18 @@ router.group(() => {
 
 // Exams
 router.group(() => {
-  router.get('/exams', [ExamController, 'index']);
-  router.post('/exams', [ExamController, 'store']);
-});
+  router.get('/exams', [ExamController, 'index'])
+  router.post('/exams', [ExamController, 'store'])
+  router.get('/exams/:id', [ExamController, 'show'])
+  router.patch('/exams/:id', [ExamController, 'update'])
+  router.delete('/exams/:id', [ExamController, 'destroy'])
+  router.get('/exams/:id/exam-login-credentials', [ExamController, 'storeExamLoginCredentials'])
+}).use(middleware.auth());
+
+// Candidate authentication routes
+router.post('/candidate/login', [CandidateAuthController, 'login'])
+router.post('/candidate/logout', [CandidateAuthController, 'logout'])
+router.post('/candidate/me', [CandidateAuthController, 'me'])
 
 router.post('/api/upload-pdf', '#controllers/pdf_controller.upload')
 router.get('/api/stream-response/:requestId', '#controllers/pdf_controller.streamResponse')

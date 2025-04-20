@@ -5,6 +5,11 @@ import ExamTransformer from '#transformers/ExamTransformer';
 import vine from '@vinejs/vine';
 import Batch from '#models/batch';
 import QuestionPaper from '#models/question_paper';
+import { DateTime } from 'luxon';
+import ExamCandidate from '#models/exam_candidate';
+import hash from '@adonisjs/core/services/hash'
+
+import { generateUniqueCode } from '../helpers/UniqueCode.js'
 
 export default class ExamController {
   async index({ response }: HttpContext) {
@@ -23,7 +28,8 @@ export default class ExamController {
 
   async show({ params, response }: HttpContext) {
     const { id } = params;
-    const exam = await Exam.firstOrFail(id);
+
+    const exam = await Exam.query().where('uuid', id).preload('batches').preload('question_papers').firstOrFail();
 
     return response.status(200).send({
       status: 'success',
@@ -49,7 +55,6 @@ export default class ExamController {
       question_paper_id: data.question_paper_id,
     }
 
-
     await vine.validate({schema: rules, data: state})
 
     const user: any = await auth.user!.getRoleInstance();
@@ -65,12 +70,74 @@ export default class ExamController {
       question_paper_id: questionPaper.id,
     }
 
-
     await Exam.create(payload);
 
     return response.status(200).send({
       status: 'success',
       message: 'Exam created successfully',
+    });
+  }
+
+  async storeExamLoginCredentials({ params, response }: HttpContext) {
+    const { id } = params;
+
+    const exam = await Exam.query().where('uuid', id).preload('batches').preload('question_papers').firstOrFail();
+    const batch = await Batch.query().where('uuid', exam.batches.uuid).preload('students').firstOrFail();
+
+    let batchStudents: Array<any> = [];
+
+    for (const student of batch.students) {
+      batchStudents.push({
+        exam_id: exam.id,
+        student_id: student.id,
+        candidate_id: generateUniqueCode(),
+        candidate_password: '12345678', // Default password
+        terms_accepted: null,
+        login_attempts: [],
+        login_timestamps: [],
+        candidate_end_time: null,
+        is_survey_completed: false,
+      });
+    }
+
+    await ExamCandidate.createMany(batchStudents);
+
+    return response.status(200).send({
+      status: 'success',
+      message: 'Exam Login Credentials created successfully',
+    });
+  }
+
+  async update({ params, request, response }: HttpContext) {
+      const { id } = params;
+      const { data } = request.all();
+
+      const exam = await Exam.query().where('uuid', id).firstOrFail();
+
+      if ('start_datetime' in data) {
+        exam.start_time = DateTime.fromISO(data.start_datetime);
+        if('duration' in data) {
+          exam.end_time = exam.start_time.plus({ seconds: data.duration });
+        }
+      }
+
+      await exam.save();
+
+      return response.status(200).send({
+        status: 'success',
+        message: 'Exam schedule updated successfully',
+      });
+  }
+
+  async destroy({ params, response }: HttpContext) {
+    const { id } = params;
+
+    const exam = await Exam.query().where('uuid', id).firstOrFail();
+    await exam.delete();
+
+    return response.status(200).send({
+      status: 'success',
+      message: 'Exam deleted successfully',
     });
   }
 }

@@ -4,6 +4,7 @@ import Teacher from '#models/teacher'
 import { loginValidator, registerValidator } from '#validators/auth'
 import type { HttpContext } from '@adonisjs/core/http'
 import UserTransformer from '#transformers/UserTransformer';
+import ExamCandidate from '#models/exam_candidate';
 
 export default class AuthController {
 
@@ -97,6 +98,24 @@ export default class AuthController {
     return response.status(200).send({
       status: 'success',
       data: await UserTransformer.transform(user_data),
+    });
+  }
+
+  async candidateLogin({ params, response }: HttpContext) {
+    const { id } = params;
+
+    const candidate = await ExamCandidate.query().where('uuid', id).firstOrFail();
+
+    if (candidate.candidate_password !== candidate.candidate_id) {
+      return response.status(401).send({
+        status: 'error',
+        message: 'Invalid credentials!',
+      });
+    }
+
+    return response.status(200).send({
+      status: 'success',
+      message: 'Login successful',
     });
   }
 }
